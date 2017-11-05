@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.16
+VisualStudioVersion = 15.0.27004.2002
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodingGame.Zombies", "CodingGame.Zombies\CodingGame.Zombies.csproj", "{4033F3A1-E809-4BB1-A0ED-69577FFE228B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodingGame.Zombies.OldDotNet", "CodingGame.Zombies.OldDotNet\CodingGame.Zombies.OldDotNet.csproj", "{1C071585-C7B7-4178-A46C-3433D52CA418}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{4033F3A1-E809-4BB1-A0ED-69577FFE228B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4033F3A1-E809-4BB1-A0ED-69577FFE228B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4033F3A1-E809-4BB1-A0ED-69577FFE228B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4033F3A1-E809-4BB1-A0ED-69577FFE228B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C071585-C7B7-4178-A46C-3433D52CA418}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C071585-C7B7-4178-A46C-3433D52CA418}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C071585-C7B7-4178-A46C-3433D52CA418}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C071585-C7B7-4178-A46C-3433D52CA418}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
