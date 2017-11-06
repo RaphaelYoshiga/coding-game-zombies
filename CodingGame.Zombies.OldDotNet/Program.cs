@@ -99,6 +99,9 @@ namespace CodingGame.Zombies.OldDotNet
 
         private bool IsSalvable(Human human)
         {
+            if (human.Position.Equals(_player.Position))
+                return false;
+
             var humanPosition = human.Position;
 
             var closestZombie = _zombies.GetClosestZombie(humanPosition);
@@ -129,6 +132,9 @@ namespace CodingGame.Zombies.OldDotNet
 
     public class ControllableHuman
     {
+        private const int ShootingRange = 2000;
+        private const int MovementDistance = 1000;
+
         public ControllableHuman(Position position)
         {
             Position = position;
@@ -140,7 +146,7 @@ namespace CodingGame.Zombies.OldDotNet
         {
             var distance = Position.CalculateDistance(humanPosition);
             Console.Error.WriteLine($"Distance {distance}");
-            return distance / (1000 + 2000);
+            return distance / (MovementDistance + ShootingRange);
         }
     }
 
@@ -188,7 +194,7 @@ namespace CodingGame.Zombies.OldDotNet
             return xDistance + yDistance;
         }
 
-        public int EnsurePositive(int value)
+        private int EnsurePositive(int value)
         {
             return value > 0 ? value : value * -1;
         }
@@ -197,5 +203,23 @@ namespace CodingGame.Zombies.OldDotNet
         {
             return X + " " + Y;
         }
+
+        private sealed class XYEqualityComparer : IEqualityComparer<Position>
+        {
+            public bool Equals(Position x, Position y)
+            {
+                return x.X == y.X && x.Y == y.Y;
+            }
+
+            public int GetHashCode(Position obj)
+            {
+                unchecked
+                {
+                    return (obj.X * 397) ^ obj.Y;
+                }
+            }
+        }
+
+        public static IEqualityComparer<Position> XYComparer { get; } = new XYEqualityComparer();
     }
 }
