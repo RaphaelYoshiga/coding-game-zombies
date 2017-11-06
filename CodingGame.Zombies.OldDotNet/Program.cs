@@ -93,28 +93,30 @@ namespace CodingGame.Zombies.OldDotNet
 
         public Position DecideNextPosition()
         {
-            var humanPositionToGo = _humans.FirstOrDefault(IsSalvable) ?? _humans.First();
+            foreach (var item in _humans)
+            {
+                IsSalvable(item);
+            }
+
+            var humanPositionToGo = _humans.Where(p => p.IsSalvable).OrderBy(p => p.TurnsToDie).FirstOrDefault() ?? _humans.First();
             return humanPositionToGo.Position;
         }
 
-        private bool IsSalvable(Human human)
+        private void IsSalvable(Human human)
         {
-            if (human.Position.Equals(_player.Position))
-                return false;
-
             var humanPosition = human.Position;
 
             var closestZombie = _zombies.GetClosestZombie(humanPosition);
             var distance = closestZombie.Position.CalculateDistance(humanPosition);
-            var distanceInTurns = distance / 400;
+            var turnsToDie = distance / 400;
 
             var turnsToSaveHuman = _player.TurnsToSaveHuman(humanPosition);
 
-            var isSalvable = turnsToSaveHuman <= distanceInTurns;
-            Console.Error.WriteLine($"HumanId: {human.Id} IsSalvable: {isSalvable} TurnsToSaveHuman: {turnsToSaveHuman} TurnsForZombieToReachIt: {distanceInTurns}");
+            var isSalvable = turnsToSaveHuman <= turnsToDie;
+            Console.Error.WriteLine($"HumanId: {human.Id} IsSalvable: {isSalvable} TurnsToSaveHuman: {turnsToSaveHuman} TurnsForZombieToReachIt: {turnsToDie}");
 
-
-            return isSalvable;
+            human.SetTurnsToDie(turnsToDie);
+            human.SetIsSalvable(isSalvable);
         }
     }
 
@@ -164,6 +166,7 @@ namespace CodingGame.Zombies.OldDotNet
 
     public class Human
     {
+
         public Human(int id, Position position)
         {
             Id = id;
@@ -173,6 +176,17 @@ namespace CodingGame.Zombies.OldDotNet
         public int Id { get; }
         public Position Position { get; }
 
+        public void SetIsSalvable(bool isSalvable)
+        {
+            IsSalvable = isSalvable;
+        }
+
+        public bool IsSalvable { get; private set; }
+        public int TurnsToDie { get; set; }
+        public void SetTurnsToDie(int turnsToDie)
+        {
+            TurnsToDie = turnsToDie;
+        }
     }
 
     public struct Position
