@@ -8,16 +8,13 @@ namespace CodingGame.Zombies.OldDotNet
     {
         static void Main(string[] args)
         {
-            string[] inputs;
-
-            // game loop
             while (true)
             {
                 var map = ParseInputs();
 
                 var first = map.DecideNextPosition();
 
-                Console.WriteLine(first.X + " " + first.Y); // Your destination coordinates        
+                Console.WriteLine(first.ToCommand()); // Your destination coordinates        
             }
         }
 
@@ -35,7 +32,7 @@ namespace CodingGame.Zombies.OldDotNet
         {
             int x = int.Parse(inputs[0]);
             int y = int.Parse(inputs[1]);
-            return new ControllableHuman(new Point(x, y));
+            return new ControllableHuman(new Position(x, y));
         }
 
         private static Humans ParseHumans()
@@ -69,7 +66,7 @@ namespace CodingGame.Zombies.OldDotNet
             int zombieY = int.Parse(inputs[2]);
             int zombieXNext = int.Parse(inputs[3]);
             int zombieYNext = int.Parse(inputs[4]);
-            return new Zombie(zombieId, new Point(zombieX, zombieY), new Point(zombieXNext, zombieYNext));
+            return new Zombie(zombieId, new Position(zombieX, zombieY), new Position(zombieXNext, zombieYNext));
         }
 
         private static Human ParseHuman(string[] inputs)
@@ -77,50 +74,82 @@ namespace CodingGame.Zombies.OldDotNet
             var id = int.Parse(inputs[0]);
             var x = int.Parse(inputs[1]);
             var y = int.Parse(inputs[2]);
-            return new Human(id, new Point(x, y));
+            return new Human(id, new Position(x, y));
         }
     }
 
     public class Map
     {
         private readonly Humans _humans;
+        private ControllableHuman _player;
+        private Zombies _zombies;
 
         public Map(ControllableHuman player, Humans humans, Zombies zombies)
         {
+            _zombies = zombies;
+            _player = player;
             _humans = humans;
         }
 
-
-        public Point DecideNextPosition()
+        public Position DecideNextPosition()
         {
-            return _humans.First().Position;
+            var humanPositionToGo = _humans.FirstOrDefault(IsSalvable) ?? _humans.First();
+            return humanPositionToGo.Position;
+        }
+
+        private bool IsSalvable(Human human)
+        {
+            var humanPosition = human.Position;
+
+            var closestZombie = _zombies.GetClosestZombie(humanPosition);
+            var distance = closestZombie.Position.CalculateDistance(humanPosition);
+            var distanceInTurns = distance / 400;
+
+            var turnsToSaveHuman = _player.TurnsToSaveHuman(humanPosition);
+
+            var isSalvable = turnsToSaveHuman <= distanceInTurns;
+            Console.Error.WriteLine($"HumanId: {human.Id} IsSalvable: {isSalvable} TurnsToSaveHuman: {turnsToSaveHuman} TurnsForZombieToReachIt: {distanceInTurns}");
+
+
+            return isSalvable;
         }
     }
 
     public class Zombie
-    {        
-        public Zombie(int id, Point position, Point nextTurnPosition)
+    {
+        public Zombie(int id, Position position, Position nextTurnPosition)
         {
-            Point = position;
+            Position = position;
             NextTurnPosition = nextTurnPosition;
         }
-        public Point Point { get; }
-        public Point NextTurnPosition { get; }
+        public Position Position { get; }
+        public Position NextTurnPosition { get; }
     }
 
 
     public class ControllableHuman
     {
-        public ControllableHuman(Point point)
+        public ControllableHuman(Position position)
         {
-            Point = point;
+            Position = position;
         }
 
-        public Point Point { get; }
+        public Position Position { get; }
+
+        public int TurnsToSaveHuman(Position humanPosition)
+        {
+            var distance = Position.CalculateDistance(humanPosition);
+            Console.Error.WriteLine($"Distance {distance}");
+            return distance / (1000 + 2000);
+        }
     }
 
     public class Zombies : List<Zombie>
     {
+        public Zombie GetClosestZombie(Position humanPosition)
+        {
+            return this.OrderBy(p => p.Position.CalculateDistance(humanPosition)).First();
+        }
     }
 
     public class Humans : List<Human>
@@ -129,31 +158,44 @@ namespace CodingGame.Zombies.OldDotNet
 
     public class Human
     {
-        public Human(int id, Point position)
+        public Human(int id, Position position)
         {
             Id = id;
             Position = position;
         }
 
         public int Id { get; }
-        public Point Position { get; }
+        public Position Position { get; }
 
     }
 
-    public struct Point
+    public struct Position
     {
         public int X { get; }
         public int Y { get; }
 
-        public Point(int x, int y)
+        public Position(int x, int y)
         {
             X = x;
             Y = y;
         }
 
-        public int CalculateDistance(Point anotherPoint)
+        public int CalculateDistance(Position anotherPosition)
         {
-            return 1;
+            var xDistance = EnsurePositive(X - anotherPosition.X);
+            var yDistance = EnsurePositive(Y - anotherPosition.Y);
+
+            return xDistance + yDistance;
+        }
+
+        public int EnsurePositive(int value)
+        {
+            return value > 0 ? value : value * -1;
+        }
+
+        public string ToCommand()
+        {
+            return X + " " + Y;
         }
     }
 }
